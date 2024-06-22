@@ -43,9 +43,6 @@
                     // Hide loader after getting location
                     loader.style.display = 'none';
 
-                    // Write location data to a text file
-                    writeToTextFile(latitude, longitude);
-
                     // Send location data to PHP script using AJAX
                     var xhr = new XMLHttpRequest();
                     var url = 'save_location.php';
@@ -69,31 +66,7 @@
                 loader.style.display = 'none';
                 console.log("Geolocation is not supported by this browser.");
             }
-
-            function writeToTextFile(latitude, longitude) {
-                var text = "Latitude: " + latitude + ", Longitude: " + longitude;
-
-                // Create a Blob object and create a URL to download
-                var blob = new Blob([text], { type: "text/plain" });
-                var url = URL.createObjectURL(blob);
-
-                // Create an <a> element to trigger the download
-                var a = document.createElement("a");
-                a.style.display = "none";
-                a.href = url;
-                a.download = "location.txt";
-
-                // Append the <a> element to the document body
-                document.body.appendChild(a);
-
-                // Click the <a> element to trigger the download
-                a.click();
-
-                // Remove the <a> element from the document body
-                document.body.removeChild(a);
-            }
         }
-
     </script>
 </head>
 

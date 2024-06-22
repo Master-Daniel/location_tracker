@@ -1,44 +1,17 @@
 <?php
-    // Database connection details
-    $servername = "localhost";
-    $username = "location";
-    $password = "PNFjC+nU3A2GENaq";
-    $dbname = "location_tracker";
+// Process location data
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $latitude = $_POST['latitude'];
+    $longitude = $_POST['longitude'];
 
-    // Create connection
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    // Write location data to a text file in the same directory
+    $file = 'location.txt';
+    $data = "Latitude: $latitude, Longitude: $longitude\n";
 
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+    if (file_put_contents($file, $data, FILE_APPEND | LOCK_EX) !== false) {
+        echo "Location saved to file successfully";
+    } else {
+        echo "Error saving location to file";
     }
-
-    // Process location data
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $latitude = $_POST['latitude'];
-        $longitude = $_POST['longitude'];
-
-        // Prepare SQL statement with parameters
-        $sql = "INSERT INTO device_locations (latitude, longitude, timestamp) VALUES (?, ?, NOW())";
-
-        // Create prepared statement
-        $stmt = $conn->prepare($sql);
-
-        if ($stmt) {
-            // Bind parameters to the statement
-            $stmt->bind_param("dd", $latitude, $longitude);
-
-            // Execute the statement
-            if ($stmt->execute()) {
-                echo "Location saved successfully";
-            } else {
-                echo "Error executing statement: " . $stmt->error;
-            }
-        } else {
-            echo "Error preparing statement: " . $conn->error;
-        }
-
-        // Close statement
-        $stmt->close();
-    }
+}
 ?>
